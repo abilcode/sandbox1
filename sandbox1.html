@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sandbox 1</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
+      integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn"
+      crossorigin="anonymous"
+    />
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+      integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF"
+      crossorigin="anonymous"
+    ></script>
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.24.0/axios.min.js"
+      integrity="sha512-u9akINsQsAkG9xjc1cnGF4zw5TFDwkxuc9vUp5dltDWYCSmyd0meygbvgXrlc/z7/o4a19Fb5V0OUE58J7dcyw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  </head>
+  <body>
+    <!--Navbar-->
+    <nav class="navbar navbar-light bg-light">
+      <a class="navbar-brand" href="#">Sandbox</a>
+    </nav>
+    <!--Navbar End-->
+
+    <!--Container-->
+    <div class="container">
+      <div class="row justify-content-between">
+        <div>List data Buku</div>
+        <button type="button" class="btn btn-primary" onclick="getClass()">
+          Reload Kelas
+        </button>
+        <!--Button Trigger Modal-->
+        <div>
+          <button 
+          type="button" 
+          class="btn btn-info" 
+          data-toggle="modal"
+          data-target="#modal-formulir"">Tambah Buku
+        </button>
+      </div>
+        <!--Button Trigger Modal End-->
+      </div>
+      <!--Modal-->
+      <div
+        class="modal fade"
+        id="modal-formulir"
+        tabindex="-1"
+        aria-labelledby="exampleModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Formulir Kelas</h5>
+              <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="form-group">
+                <label for="name">Nama</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="name"
+                  placeholder="Nama"
+                />
+              </div>
+              <div class="form-group">
+                <label for="startDate">Kategori</label>
+                <input type="text" class="form-control" id="type" />
+              </div>
+            
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-dismiss="modal"
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                class="btn btn-primary"
+                onclick="addClass()"
+              >
+                Save changes
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--Modal end-->
+      <!--Table-->
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Nama</th>
+            <th scope="col">Kategori</th>
+            <th scope="col">Aksi</th>
+          </tr>
+        </thead>
+        <tbody class="listClass"></tbody>
+      </table>
+      <!--Table End-->
+    </div>
+    <!--Container End-->
+    <!--Script-->
+    <script>
+      const API = "https://mybook-order.herokuapp.com/books";
+      const KATEGORI = "https://mybook-order.herokuapp.com/books/type";
+      const getClass = async () => {
+        try {
+          const request = await axios.get(API);
+          Swal.fire("Succes", "Welcome, please look around!", "success");
+          console.log(request);
+          console.log(getKategori);
+          const listClass = request.data.data;
+          console.log(listClass);
+          listClass.forEach((data) => {
+            const { id, name, type_books_id } = data;
+            $(".listClass").append(`
+            <tr>
+              <td>${id}</td>
+              <td>${name}</td>
+              <td>${type_books_id}<td>
+              <td>
+                <button type="button" class="btn btn-warning" onclick="">Edit</button>
+                <button type="button" class="btn btn-danger" onclick="deleteClass(${data.id})">Delete</button>
+              </td>
+          `);
+          });
+        } catch (err) {
+          Swal.fire("Error", "Something went wrong!", "error");
+          console.log(err);
+        }
+      };
+      const deleteClass = async (id) => {
+        const delPayload = {
+          name: $("#name").val(),
+          type_books_id: $("#type").val(),
+        };
+        try {
+          const request = await axios.delete(`${API}/`,{data:delPayload});
+          Swal.fire("Succes", "List has been Deleted Successfully", "success");
+        } catch (err) {
+          Swal.fire(
+            "Error",
+            "Something Wrong, List hasn't been Deleted",
+            "error"
+          );
+        }
+      };
+      const addClass = async () => {
+        const payload = {
+          name: $("#name").val(),
+          type_books_id: $("#type").val(),
+        };
+        try {
+          const request = await axios.post(API, payload);
+          Swal.fire("Succes", "List has been Added Successfully", "success");
+        } catch (err) {
+          Swal.fire(
+            "Error",
+            "Something Wrong, List hasn't been Added",
+            "error"
+          );
+        }
+      };
+      
+      const getKategori = async() =>{
+        const reqKategori = await axios.get(KATEGORI);
+        console.log(reqKategori);
+        const listType = reqKategori.data.data;
+        listType.forEach((data)=>{
+          const {id, name} = data;
+          $(".listType").append(`
+          <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Dropdown button
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <a class="dropdown-item" href="#">{}</a>
+            </div>
+          </div>
+          `)
+        });
+      }
+      // Calling Functions
+      getClass();
+    </script>
+
+    <!--Script End-->
+  </body>
+</html>
