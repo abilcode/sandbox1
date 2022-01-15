@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TEst</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
+      integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn"
+      crossorigin="anonymous"
+    />
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+      integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF"
+      crossorigin="anonymous"
+    ></script>
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.24.0/axios.min.js"
+      integrity="sha512-u9akINsQsAkG9xjc1cnGF4zw5TFDwkxuc9vUp5dltDWYCSmyd0meygbvgXrlc/z7/o4a19Fb5V0OUE58J7dcyw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  </head>
+  <body>
+    <nav class="navbar navbar-light bg-light">
+      <a class="navbar-brand" href="#">Belajar API</a>
+    </nav>
+    <div class="container">
+      <button type="button" class="btn btn-primary" onclick="getClass()">
+        Reload Kelas
+      </button>
+      <button
+        type="button"
+        class="btn btn-success"
+        data-toggle="modal"
+        data-target="#modal-formulir"
+      >
+        Add
+      </button>
+
+      <!--Modal-->
+      <div
+        class="modal fade"
+        id="modal-formulir"
+        tabindex="-1"
+        aria-labelledby="exampleModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Formulir Kelas</h5>
+              <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="form-group">
+                <label for="name">Name</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="name"
+                  placeholder="Nama"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="startDate">Start Date</label>
+                <input type="date" class="form-control" id="startDate" />
+              </div>
+              <div class="form-group">
+                <label for="endDate">End Date</label>
+                <input type="date" class="form-control" id="endDate" />
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-dismiss="modal"
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                class="btn btn-primary"
+                onclick="addClass()"
+              >
+                Save changes
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--Modal end-->
+
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">id</th>
+            <th scope="col">Nama</th>
+            <th scope="col">startDate</th>
+            <th scope="col">endDate</th>
+            <th scope="col">Action</th>
+          </tr>
+        </thead>
+        <tbody class="listClass"></tbody>
+      </table>
+    </div>
+    <script>
+      const API = "https://service-classroom.herokuapp.com/api/class";
+      const getClass = async () => {
+        try {
+          const request = await axios.get(API);
+          Swal.fire("Succes", "Welcome, please look around!", "success");
+          console.log(request);
+          const listClass = request.data.data;
+          listClass.forEach((data) => {
+            const { id, name, startDate, endDate } = data;
+            $(".listClass").append(`
+            <tr>
+              <td>${id}</td>
+              <td>${name}</td>
+              <td>${startDate}</td>
+              <td>${endDate}</td>
+              <td>
+                <button type="button" class="btn btn-warning" onclick="">Edit</button>
+                <button type="button" class="btn btn-danger" onclick="deleteClass(${data.id})">Delete</button>
+              </td>
+          `);
+          });
+        } catch (err) {
+          Swal.fire("Error", "Something Wrong", "error");
+        }
+      };
+      const deleteClass = async (id) => {
+        try {
+          const request = await axios.delete(`${API}/${id}`);
+          Swal.fire("Succes", "List has been Deleted Successfully", "success");
+        } catch (err) {
+          Swal.fire(
+            "Error",
+            "Something Wrong, List hasn't been Deleted",
+            "error"
+          );
+        }
+      };
+      const addClass = async () => {
+        const payload = {
+          name: $("#name").val(),
+          startDate: $("#startDate").val(),
+          endDate: $("#endDate").val(),
+        };
+        try {
+          const request = await axios.post(API, payload);
+          Swal.fire("Succes", "List has been Added Successfully", "success");
+        } catch (err) {
+          Swal.fire(
+            "Error",
+            "Something Wrong, List hasn't been Added",
+            "error"
+          );
+        }
+      };
+      getClass();
+    </script>
+  </body>
+</html>

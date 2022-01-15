@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Belajar API</title>
+    
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
+      integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn"
+      crossorigin="anonymous"
+    />
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF"
+      crossorigin="anonymous"
+    ></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.24.0/axios.min.js" integrity="sha512-u9akINsQsAkG9xjc1cnGF4zw5TFDwkxuc9vUp5dltDWYCSmyd0meygbvgXrlc/z7/o4a19Fb5V0OUE58J7dcyw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  
+  </head>
+  <body>
+    <nav class="navbar navbar-light bg-light">
+        <a class="navbar-brand" href="#">Belajar API</a>
+    </div>
+    </nav>
+    <div class="container">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">id</th>
+            <th scope="col">Nama</th>
+            <th scope="col">startDate</th>
+            <th scope="col">endDate</th>
+            <th scope="col">Action</th>
+          </tr>
+        </thead>
+        <tbody class='listClass'>
+        </tbody>
+      </table>
+    </div>
+    <script>
+      const API = `https://service-classroom.herokuapp.com/api/class`
+      
+      const getClass = async () =>{
+        try {
+          const request = await axios.get(API) 
+          alert("API BERHASIL DIAKSES")
+          console.log(request)
+          const listClass = request.data.data
+          listClass.forEach(data=>{
+            const {id, name, startDate, endDate} = data
+            $('.listClass').append(`
+              <tr>
+                <th scope="row">${id}</th>
+                <td>${name}</td>
+                <td>${startDate}</td>
+                <td>${endDate}</td>
+                <td><button type="button" class="btn btn-danger" onclick="deleteClass(${data.id})">Delete</button></td>
+              </tr>
+            `)
+          })
+        } catch (error) {
+          console.log(error)
+        }
+      }
+
+      const deleteClass = async(id) =>{
+        try{
+          const request = await axios.delete(`${API}/${id}`)
+          alert("ID BERHASIL DIHAPUS")
+          console.log(request)
+          getClass()
+        }catch(error){
+          console.log(error)
+        }
+      }
+      getClass()
+
+
+      const postClass = async() =>{
+        try{
+          const request = await axios.post(`${API}`,{
+            name: 'Belajar API',
+            startDate: '2020-01-01',
+            endDate: '2020-12-31'
+          })
+          alert("DATA BERHASIL DIINPUT")
+          console.log(request)
+          getClass()
+        }catch(error){
+          console.log(error)
+        }
+      }
+      setInterval(getClass, 500000)
+    </script>
+  </body>
+</html>
